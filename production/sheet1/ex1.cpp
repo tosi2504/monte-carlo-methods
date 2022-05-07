@@ -15,7 +15,7 @@ int main () {
 	std::mt19937 rng(0);
 	std::vector<double> sample;
 	sample.resize(1000);
-	fill_vector_with_normal(sample, 300, 1);
+	fill_vector_with_normal(sample, 300, 1, rng);
 	double m = mean(sample);
 	double s = stdev(sample, m);
 	std::cout << "Mean: " << m << std::endl;
