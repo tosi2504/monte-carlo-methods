@@ -35,6 +35,7 @@ axHisto.axvline(0.606, color = "green")
 axHisto.grid()
 
 fig.tight_layout()
+fig.savefig("fig1.pdf")
 
 
 # plot for exercise 2
@@ -50,10 +51,14 @@ ax.set_xlim(10, 1000000)
 ax.grid()
 ax.scatter(Ns, stdev, color = "black", s = 4)
 fitfunc = lambda N,a,b: a*N**b
-popt, _ = curve_fit(fitfunc, Ns, stdev)
+popt, _ = curve_fit(fitfunc, Ns, stdev, sigma = stdev)
 print("Optimized params: ", *popt)
 ax.plot(Ns, fitfunc(Ns, *popt), color = "blue", label = r"Fit $a N ^ b$ " + f": a = {popt[0]:1.2f}, b = {popt[1]:1.2f}")
 ax.legend()
 
 fig.tight_layout()
+fig.savefig("fig2.pdf")
 plt.show()
+
+print("red line:", Ns[20])
+print("blue line:", Ns[50])

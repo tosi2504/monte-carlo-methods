@@ -17,6 +17,7 @@ measure_t measurement_average(measure_t (*measurement)(config_t config), const s
     return result/sample.size();
 }
 
+
 void fill_vector_with_normal(std::vector<double> & sample, double mean, double sigma, std::mt19937 & rng) {
 	std::normal_distribution<> norm_dist{mean, sigma};
     for (double & val: sample) {
@@ -29,9 +30,9 @@ int main () {
     std::array<double, 101> Ns;
     for (int i = 0; i < 101; i++) {
         double exponent = 5/100.0f * i + 1;
-        std::cout << exponent << std::endl;
         Ns[i] = std::pow(10, exponent);
         // THIS LINE CREATES PROBLEMS WITH G++ WITH THE -O3
+        std::cout << exponent << std::endl;
     }
 
 
