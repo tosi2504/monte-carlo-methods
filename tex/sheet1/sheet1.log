@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2021.2.10)  11 MAY 2022 16:41
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2022.5.14)  14 MAY 2022 16:58
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -74,7 +74,12 @@ File: l3backend-pdfmode.def 2020-02-03 L3 backend support: PDF mode
 \l__kernel_color_stack_int=\count178
 \l__pdf_internal_box=\box45
 )
-(./sheet1.aux)
+(./sheet1.aux
+! Extra }, or forgotten \endgroup.
+l.9 }
+     
+? 
+)
 \openout1 = `sheet1.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 10.
@@ -176,44 +181,6 @@ Underfull \hbox (badness 10000) in paragraph at lines 23--25
 [][]
  []
 
-! Missing { inserted.
-<to be read again> 
-                   \mathaccent 
-l.25 ...ver N. A function $aN^b$ has been fitted.}
-                                                  
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.25 ...ver N. A function $aN^b$ has been fitted.}
-                                                  
-? 
-! Missing { inserted.
-<to be read again> 
-                   \mathaccent 
-l.25 ...ver N. A function $aN^b$ has been fitted.}
-                                                  
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.25 ...ver N. A function $aN^b$ has been fitted.}
-                                                  
-? 
-! Missing { inserted.
-<to be read again> 
-                   \mathaccent 
-l.27 ...tigate how the standard error $\sigma_\bar
-                                                  {f}$ of the sample mean de...
-
-? 
-! Missing } inserted.
-<inserted text> 
-                }
-l.27 ...te how the standard error $\sigma_\bar{f}$
-                                                   of the sample mean depend...
-
-? 
 [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2 <./fig1.pdf> <./fig2.pd
@@ -223,13 +190,13 @@ pdfTeX warning: pdflatex (file ./fig2.pdf): PDF inclusion: multiple pdfs with p
 age group included in a single page
 >] (./sheet1.aux) ) 
 Here is how much of TeX's memory you used:
- 1689 strings out of 483140
- 24540 string characters out of 5965151
- 263019 words of memory out of 5000000
- 16737 multiletter control sequences out of 15000+600000
+ 1689 strings out of 483183
+ 24540 string characters out of 5966292
+ 262869 words of memory out of 5000000
+ 16730 multiletter control sequences out of 15000+600000
  537509 words of font info for 41 fonts, out of 8000000 for 9000
- 36 hyphenation exceptions out of 8191
- 30i,6n,25p,1058b,206s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 14 hyphenation exceptions out of 8191
+ 30i,6n,25p,1184b,206s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/c
 m/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx
 12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb
@@ -241,7 +208,7 @@ ist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/texmf-dist/fon
 ts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1
 /public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/publi
 c/amsfonts/cm/cmsy8.pfb>
-Output written on sheet1.pdf (2 pages, 279640 bytes).
+Output written on sheet1.pdf (2 pages, 280031 bytes).
 PDF statistics:
  247 PDF objects out of 1000 (max. 8388607)
  58 compressed objects within 1 object stream
