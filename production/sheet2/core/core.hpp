@@ -1,4 +1,4 @@
-#pramga once
+#pragma once
 
 #include <vector>
 #include <map>
@@ -7,14 +7,23 @@
 #include <cmath>
 
 using coord_flat = unsigned int;
-struct coord_xy { unsigned int x, y; };
+struct coord_xy {
+    unsigned int x, y;
+    coord_xy(): x(0), y(0) {}
+    coord_xy(unsigned int x, unsigned int y):x(x), y(y) {}
+    bool operator<(const coord_xy & other) const {
+        if (y < other.y) return true;
+        else if (y == other.y) return x < other.x;
+        else return false;
+    }
+};
 
 struct IsingModel {
     // grid properties
     const unsigned int N;
     std::vector<std::array<coord_flat, 4>> nn_lookup;
     std::map<coord_xy, coord_flat> xy_to_flat;
-    std::map<coord_xy, coord_flat> flat_to_xy;
+    std::map<coord_flat, coord_xy> flat_to_xy;
 
     // dynamic variables
     std::vector<short int> config;
@@ -33,6 +42,12 @@ struct IsingModel {
     void fill_nn_lookup();
 
     // state update algorithms
-    int metropolis_one_step(double beta);
+    int metropolis_one_step(double beta, coord_flat site);
     int metropolis_sweep(double beta);
+
+    // access
+    bool at(unsigned int x, unsigned int y);
+    void set(unsigned int x, unsigned int y, bool val);
+    int calc_energy();
+
 };

@@ -3,6 +3,8 @@
 // row major matrix convetion applied to lattice
 // origin is top left
 
+#include <iostream>
+
 
 IsingModel::IsingModel(unsigned int N, unsigned int seed): N(N) {
     rng = std::mt19937(seed);
@@ -16,15 +18,16 @@ void IsingModel::init_grid(double ratio) {
     config.resize(N*N);
     for (short int & site: config) {
         if (uni_dist(rng) < ratio) {
-            site = -1;
-        } else {
             site = 1;
+        } else {
+            site = -1;
         }
     }
     //calc E and M of config
-    E = 0
-    M = 0
-    for (const auto & [site, nn]: nn_lookup) {
+    E = 0;
+    M = 0;
+    for (coord_flat site = 0; site < N*N; site++) {
+        const auto & nn = nn_lookup[site];
         E += - config[site]*config[nn[1]]; // right
         E += - config[site]*config[nn[2]]; // bottom
         M += config[site];
@@ -32,14 +35,14 @@ void IsingModel::init_grid(double ratio) {
 }
 
 void IsingModel::fill_maps() {
-    coord_xy xy;
-    for (unsigned int x; x < N; x++) {
-        for (unsigned int y; y < N; y++) {
+    coord_xy xy(0,0);
+    for (unsigned int x = 0; x < N; x++) {
+        for (unsigned int y = 0; y < N; y++) {
             xy.x = x;
             xy.y = y;
             coord_flat flat = y*N + x;
-            xy_to_flat.insert(xy, flat);
-            flat_to_xy.insert(flat, xy);
+            xy_to_flat[xy] = flat;
+            flat_to_xy[flat] = xy;
         }
     }
 }
@@ -62,8 +65,9 @@ int IsingModel::metropolis_one_step(double beta, coord_flat site) {
     }
     delta_energy = 2 * delta_energy;
 
-    if (uni_dist(rng) < std::exp(-delta_energy)) {
-        config[site] *= -1; // accepted
+
+    if (uni_dist(rng) < std::exp(-delta_energy*beta)) {
+        config[site] = config[site]*(-1); // accepted
         E += delta_energy;
         M += 2 * config[site];
         return 1;
@@ -72,9 +76,28 @@ int IsingModel::metropolis_one_step(double beta, coord_flat site) {
 }
 
 int IsingModel::metropolis_sweep(double beta) {
-    accepted = 0;
+    int accepted = 0;
     for (coord_flat site = 0; site < N*N; site++) {
         accepted += metropolis_one_step(beta, site);
     }
-    return accepted
+    return accepted;
+}
+
+
+bool IsingModel::at(unsigned int x, unsigned int y) {
+    return 1 == config[y*N + x];
+}
+
+void IsingModel::set(unsigned int x, unsigned int y, bool val) {
+    config[y*N + x] = (val) ? 1 : -1;
+    E = calc_energy();
+}
+
+int IsingModel::calc_energy() {
+    int energy = 0;
+    for (coord_flat site = 0; site < N*N; site++) {
+        energy += -config[site]*config[nn_lookup[site][1]];
+        energy += -config[site]*config[nn_lookup[site][2]];
+    }
+    return energy;
 }
