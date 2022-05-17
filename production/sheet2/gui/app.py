@@ -1,6 +1,6 @@
 import tkinter as tk
 import re
-from ../core/pyIsing import IsingModel
+from pyIsing import IsingModel
 
 
 # layout:
@@ -48,12 +48,6 @@ class GridDisplay(tk.Toplevel):
         self.xy_to_id_map = dict()
         self.init_drawing_grid()
 
-        self.draw_pixel(0,0,True)
-        self.draw_pixel(1,1,True)
-        self.draw_pixel(2,2,True)
-        self.draw_pixel(3,3,True)
-        self.draw_pixel(4,4,True)
-
         self.protocol("WM_DELETE_WINDOW", parent.press_btn_discard)
 
     def init_drawing_grid(self):
@@ -65,6 +59,11 @@ class GridDisplay(tk.Toplevel):
     def draw_pixel(self, x, y, val):
         self.canvas.itemconfig(self.xy_to_id_map[(x,y)], fill="black" if val else "white")
 
+    def draw_from_Ising_model(self, model):
+        for x in range(self.grid_size):
+            for y in range(self.grid_size):
+                self.draw_pixel(x, y, model.at(x,y))
+
 
 class App(tk.Tk):
     def __init__(self):
@@ -73,6 +72,10 @@ class App(tk.Tk):
         self.algorithms = ["MP_single", "MP_sweep"]
         self.create_temperature_interface()
         self.create_play_interface()
+        self.M = list()
+        self.E = list()
+        self.IsingModel = None
+        self.mp_single_step_site = 0
 
     def run(self):
         self.mainloop()
@@ -117,8 +120,12 @@ class App(tk.Tk):
         self.btn_pause.config(state=tk.NORMAL)
         self.btn_therm.config(state=tk.NORMAL)
 
+
+
         #spawn windows for grid and plot
         self.GridDisplay = GridDisplay(self, int(self.entry_N.get()), int(self.entry_pf.get()))
+        self.IsingModel = IsingModel(int(self.entry_N.get()), int(self.entry_seed.get()))
+        self.E, self.M = list(), list()
 
     def press_btn_discard(self):
         #enable entries
@@ -167,7 +174,18 @@ class App(tk.Tk):
 
     def loop_simulate(self):
         if self.isSimulating:
-            self.after(1000, self.loop_simulate)
+            self.after(10, self.loop_simulate)
+
+            # Do the actual simulation here
+            if (self.algo_str_var.get() == "MP_single"):
+                print("Doing MP_single step")
+                self.IsingModel.metropolis_one_step(float(self.entry_beta.get()) , self.mp_single_step_site)
+                x, y = self.mp_single_step_site % (int(self.entry_N.get())), self.mp_single_step_site // (int(self.entry_N.get()))
+                self.GridDisplay.draw_pixel(x, y, self.IsingModel.at(x,y))
+                self.mp_single_step_site = (self.mp_single_step_site + 1) % (int(self.entry_N.get())**2)
+            elif (self.algo_str_var.get() == "MP_sweep"):
+                self.IsingModel.metropolis_sweep(float(self.entry_beta.get()))
+                self.GridDisplay.draw_from_Ising_model(self.IsingModel)
             print("Looping")
 
     def pause_simulate(self):
