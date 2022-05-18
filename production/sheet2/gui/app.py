@@ -1,6 +1,8 @@
 import tkinter as tk
 import re
 from pyIsing import IsingModel
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 
 
 # layout:
@@ -32,6 +34,28 @@ class FloatEntry(tk.Entry):
             self.old_value = self.get()
         else:
             self.set(self.old_value)
+
+class PlotDisplay(tk.Toplevel):
+    def __init__(self, parent):
+        super().__init__(master = parent)
+        self.parent = parent
+        self.fig = Figure(figsize=(8,4), dpi = 100)
+        self.axE = self.fig.add_subplot()
+        self.axM = self.axE.twinx()
+        self.axE.plot(0,0,color="red")
+        self.axM.plot(0,0,color="green")
+        self.canvas = FigureCanvasTkAgg(self.fig, master = self)
+        self.canvas.get_tk_widget().pack()
+        self.canvas.draw()
+
+        self.protocol("WM_DELETE_WINDOW", parent.press_btn_discard)
+
+    def plot(self, t, E, M):
+        self.axE.clear()
+        self.axM.clear()
+        self.axE.plot(t, E, color="red")
+        self.axM.plot(t, M, color="green")
+        self.canvas.draw()
 
 class GridDisplay(tk.Toplevel):
     def __init__(self, parent, grid_size, pf):
@@ -74,6 +98,7 @@ class App(tk.Tk):
         self.create_play_interface()
         self.M = list()
         self.E = list()
+        self.t = list()
         self.IsingModel = None
         self.mp_single_step_site = 0
 
@@ -124,8 +149,9 @@ class App(tk.Tk):
 
         #spawn windows for grid and plot
         self.GridDisplay = GridDisplay(self, int(self.entry_N.get()), int(self.entry_pf.get()))
+        self.PlotDisplay = PlotDisplay(self)
         self.IsingModel = IsingModel(int(self.entry_N.get()), int(self.entry_seed.get()))
-        self.E, self.M = list(), list()
+        self.E, self.M, self.t = [0], [0], [0]
 
     def press_btn_discard(self):
         #enable entries
@@ -140,6 +166,7 @@ class App(tk.Tk):
         self.btn_therm.config(state=tk.DISABLED)
 
         self.GridDisplay.destroy()
+        self.PlotDisplay.destroy()
         self.pause_simulate()
 
     def create_temperature_interface(self):
@@ -174,7 +201,7 @@ class App(tk.Tk):
 
     def loop_simulate(self):
         if self.isSimulating:
-            self.after(10, self.loop_simulate)
+            self.after(50, self.loop_simulate)
 
             # Do the actual simulation here
             if (self.algo_str_var.get() == "MP_single"):
@@ -183,9 +210,16 @@ class App(tk.Tk):
                 x, y = self.mp_single_step_site % (int(self.entry_N.get())), self.mp_single_step_site // (int(self.entry_N.get()))
                 self.GridDisplay.draw_pixel(x, y, self.IsingModel.at(x,y))
                 self.mp_single_step_site = (self.mp_single_step_site + 1) % (int(self.entry_N.get())**2)
+                self.E.append(self.IsingModel.E)
+                self.M.append(self.IsingModel.M)
+                self.t.append(self.t[-1] + 1)
             elif (self.algo_str_var.get() == "MP_sweep"):
                 self.IsingModel.metropolis_sweep(float(self.entry_beta.get()))
                 self.GridDisplay.draw_from_Ising_model(self.IsingModel)
+                self.E.append(self.IsingModel.E)
+                self.M.append(self.IsingModel.M)
+                self.t.append(self.t[-1] + int(self.entry_N.get())**2)
+            self.PlotDisplay.plot(self.t, self.E, self.M)
             print("Looping")
 
     def pause_simulate(self):
