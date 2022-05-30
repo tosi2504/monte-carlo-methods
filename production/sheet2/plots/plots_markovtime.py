@@ -10,7 +10,7 @@ betas = list()
 for ID in ["3846", "4347", "5000"]:
     chains[ID] = tools.ChainAnalyzer(filename = "chains/" + ID + ".ising")
     chains_list.append(chains[ID])
-    betas.append(int(ID)/1000)
+    betas.append(int(ID)/10000)
 
 
 # thermalisation plot
@@ -19,8 +19,8 @@ axMs = []
 for axE in axEs:
     axMs.append(axE.twinx())
 for axE, axM, chain, beta in zip(axEs, axMs, chains_list, betas):
-    axE.plot(chain.E, color = "black", linewidth = 1.2)
-    axM.plot(chain.M, color = "blue", linewidth = 1.2)
+    axE.plot(chain.E, color = "black", linewidth = 1.4)
+    axM.plot(np.abs(chain.M), color = "blue", linewidth = 1.4)
     axM.spines["right"].set_color("blue")
     axM.yaxis.label.set_color("blue")
     axM.tick_params(axis='y', colors='blue')
@@ -33,7 +33,7 @@ for axE, axM, chain, beta in zip(axEs, axMs, chains_list, betas):
 axEs[-1].set_xlabel(r"Markov time, $t_M$")
 axEs[-1].set_xlim(0,100)
 axEs[1].set_ylabel(r"Energy per site, $e = E/V$")
-axMs[1].set_ylabel(r"Magnetisation per site, $m = M/V$")
+axMs[1].set_ylabel(r"Magnetisation per site, $m = \left| M \right|/V$")
 fig.tight_layout()
 plt.show()
 
@@ -45,8 +45,12 @@ for axE in axEs:
     axMs.append(axE.twinx())
 for axE, axM, chain, beta in zip(axEs, axMs, chains_list, betas):
     axE.plot(chain.E, color = "black", linewidth = 0.6)
-
-    axM.plot(chain.M, color = "blue", linewidth = 0.6)
+    if axM is axMs[0]: # first subplot
+        # sparse out the mag plot
+        N = np.arange(0, len(chain.M))
+        axM.plot(N[::10], np.abs(chain.M)[::10], color = "blue", linewidth = 0.6)
+    else: # the other plots are fine
+        axM.plot(np.abs(chain.M), color = "blue", linewidth = 0.6)
     axM.spines["right"].set_color("blue")
     axM.yaxis.label.set_color("blue")
     axM.tick_params(axis='y', colors='blue')
@@ -60,6 +64,6 @@ for axE, axM, chain, beta in zip(axEs, axMs, chains_list, betas):
 axEs[-1].set_xlabel(r"Markov time, $t_M$")
 axEs[-1].set_xlim(0,10000)
 axEs[1].set_ylabel(r"Energy per site, $e = E/V$")
-axMs[1].set_ylabel(r"Magnetisation per site, $m = M/V$")
+axMs[1].set_ylabel(r"Magnetisation per site, $m =  \left| M \right|/V$")
 fig.tight_layout()
 plt.show()
