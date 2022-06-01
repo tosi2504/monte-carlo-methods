@@ -83,6 +83,32 @@ int IsingModel::metropolis_sweep(double beta) {
     return accepted;
 }
 
+std::array<double,5> IsingModel::create_lookup(double beta) {
+    std::array<double,5> result;
+    for (int i = 0; i < 5; i++) {
+        int delta_energy = 4*(i-2);
+        result[i] = std::exp(-delta_energy*beta);
+    }
+    return result;
+}
+
+int IsingModel::metropolis_one_step(const std::array<double,5> & lookup, coord_flat site) {
+    int delta_energy = 0;
+    for (coord_flat nn: nn_lookup[site]) {
+        delta_energy += config[site]*config[nn];
+    }
+
+
+    if (uni_dist(rng) < lookup[delta_energy/2 + 2]) {
+        config[site] = config[site]*(-1); // accepted
+        E += 2*delta_energy;
+        M += 2 * config[site];
+        return 1;
+    }
+    return 0;
+}
+
+
 
 bool IsingModel::at(unsigned int x, unsigned int y) {
     return 1 == config[y*N + x];

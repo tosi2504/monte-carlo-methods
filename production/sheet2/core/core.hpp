@@ -44,6 +44,8 @@ struct IsingModel {
     // state update algorithms
     int metropolis_one_step(double beta, coord_flat site);
     int metropolis_sweep(double beta);
+    static std::array<double,5> create_lookup(double beta);
+    int metropolis_one_step(const std::array<double,5> & lookup, coord_flat site);
 
     // access
     bool at(unsigned int x, unsigned int y);
