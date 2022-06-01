@@ -58,11 +58,13 @@ class ChainAnalyzer:
         self.M_therm = self.M[self.N_therm:]
         self.M_therm = self.M_abs[self.N_therm:]
 
-    def calc_statistics(self):
+    def calc_measurements(self):
         self.E_mean = self.E_therm.mean()
         self.M_mean = self.M_therm.mean()
-        self.E_std = self.E_therm.std()
-        self.M_std = self.M_therm.std()
+        self.E_var = self.E_therm.var()
+        self.M_var = self.M_therm.var()
+        self.heat_capacity_density = self.beta**2 * self.grid_size**2 * self.E_var
+        self.magnetic_susceptibility_density = self.beta * self.grid_size**2 * self.M_var
 
     def plot_energy_and_mag(self):
         fig = plt.figure(figsize = (5.9, 2))
