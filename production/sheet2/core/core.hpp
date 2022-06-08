@@ -6,6 +6,7 @@
 #include <random>
 #include <cmath>
 
+
 using coord_flat = unsigned int;
 struct coord_xy {
     unsigned int x, y;
