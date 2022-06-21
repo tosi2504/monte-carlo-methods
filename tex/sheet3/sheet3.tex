@@ -1,0 +1,41 @@
+\documentclass[11pt, a4paper]{scrartcl}
+
+\usepackage[left=3cm, right=3cm, top=3cm, bottom=3cm]{geometry}
+\usepackage{graphicx}
+\usepackage{array}
+
+\newcommand{\mod}{\ \mathrm{mod} \ }
+\newcommand{\git}{\mathbin{
+  \mathchoice{/\mkern-6mu/}% \displaystyle
+    {/\mkern-6mu/}% \textstyle
+    {/\mkern-5mu/}% \scriptstyle
+    {/\mkern-5mu/}}}% \scriptscriptstyle
+
+
+\title{Monte Carlo Methods - Sheet 3}
+\subtitle{Ising Model: Autocorrelation and error estimation}
+\author{Tobias Sizmann}
+
+\begin{document}
+\maketitle
+\textit{Some interesting introduction}
+\section{Introduction}
+    Writing a simulation that returns a result is not necessarily a difficult task. But a simulation alone is not sufficient for answering real world questions. One needs to estimate an upper bound of error on the result. And ideally this upper bound should be as low as possible - it should reflect the true standard error in the statistical sense. Of course every simulation has an underlying model and therefore additional systematic errors per definition, but for now we want to focus on the statistical aspect. Here two challenges will arise. First challenge will be to deal with autocorrelation. Huge autocorrelations in a sample effectively reduce the number of statistically independent configurations and therefore increase the standard error. We will find a method to calculate the autocorrelation and determine how many steps configurations need to be apart for them to be independent. The second challenge will be estimation of error on secondary quantities. To this end we will use three different methods and compare their results to determine which method is suitable for which case. (I am very confused as to why jackknife is not done here. Isn't this like the go-to method in all of lattice QCD?)
+\section{Autocorrelation and error estimation on primary quantities}
+\subsection{Autocorrelation function}
+    As already motivated we need to find a measure of correlation of samples seperated by some number of steps $t$. To this end, one can define the autocovariance function $C_y(t)$ on some primary quantity $y$, which emerges naturally if one tries to find a correction of the error estimate for correlated Markov chains:
+    $$C_y(t) = \sum_{i = 1}^{N-t} \langle (y_i - \bar{y})(y_{i+t} - \bar{y}) \rangle$$
+    The expectation values can be estimated on a sample. Further, one can define the autocorrelation function $$
+    \rho_y(t) = \frac{C_y(t)}{C_y(0)} = \frac{C_y(t)}{\sigma_y^2} .
+    $$
+    In figure FIGURE the autocorrelation functions of energy density $E$ and absolute magnetisation density $M$ have been calculated and plotted for three different samples with temperatures $T = 2.0, 2.3, 2.6$, respectively. They exhibit an exponential decay (to be precise: it's a sum of exponential decays) and fit with $f(x) = \exp(-\frac{t}{\tau})$ has been done. $\tau$ will be our measure for the length of correlations in the chain. We will see another way to extract an approximation for $\tau$ later. Note, that the autocorrelation for $T = 2.3$ (i.e. $\beta = 0.435$) for both the energy and magnetisation is larger by several orders of magnitude. This phenomenon is called critical slowing down and appears whenever a chain is being generating for parameters close to a critical point.
+
+\subsection{Error on correlated samples}
+    To estimate the error on a primary quantity $\sigma_{\bar{y}}$ on can use the following formula:
+    $$\sigma_{\bar{y}} = \frac{\sigma_y}{\sqrt{N}}$$
+    This requires the configurations to be statistically independent. However, if one is using - for example - the Metropolis algorithm to generate the samples, they are inherently correlated. Therefore, one needs to find how many steps of seperation are required for two configurations to not be correlated anymore. To this end, one can calculate the integrated autocorrelation time $\tau_{int}$. Configurations are then assumed to be independent if the have a seperation of $2 \tau_{int}$, i.e. the effective number of configurations is $N / (2 \tau_{int})$ and the above formula needs to be adjusted accordingly:
+    $$\sigma_{\bar{y}} = \frac{\sigma_y}{\sqrt{N / (2 \tau_{int})}} = \sqrt{\frac{2 \tau_{int}}{N}}\sigma_y$$
+
+
+
+\end{document}

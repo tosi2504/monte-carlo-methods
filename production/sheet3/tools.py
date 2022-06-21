@@ -106,7 +106,7 @@ class ChainAnalyzer:
 
     @staticmethod
     def integrated_autocorrelation_time(positive_autocorrelation):
-        return 0.5 + np.sum(positive_autocorrelation)
+        return 0.5 + np.sum(positive_autocorrelation[1:])
 
     def calc_autocorrelation_function(self):
         self.E_autocorrelation = ChainAnalyzer.calc_positive_autocorrelation(self.E_therm)
@@ -119,3 +119,52 @@ class ChainAnalyzer:
     def calc_corrected_error(self):
         self.E_corrected_error = self.E_therm.std() * math.sqrt(2*self.E_autocorr_time / len(self.E_therm))
         self.M_corrected_error = self.M_therm.std() * math.sqrt(2*self.M_autocorr_time / len(self.M_therm))
+
+    def calc_error_c_and_chi_propagation(self):
+        dc_dx = self.beta ** 2 * self.grid_size ** 2
+        dc_dy = -self.beta ** 2 * self.grid_size ** 2 * 2 * self.E_therm.mean()
+        dchi_dx = self.beta * self.grid_size ** 2
+        dchi_dy = -self.beta * self.grid_size ** 2 * 2 * self.M_therm.mean()
+        eff_obs_c = lambda e: dc_dx*e**2 + dc_dy * e
+        eff_obs_chi = lambda m: dchi_dx*m**2 + dchi_dy * m
+        err_c = error_propagation(self.E_therm, eff_obs_c)
+        err_chi = error_propagation(self.M_therm, eff_obs_chi)
+        self.heat_capa_propagation_err = err_c
+        self.magn_susc_propagation_err = err_chi
+        return self.heat_capa_propagation_err, self.magn_susc_propagation_err
+
+    def calc_error_c_and_chi_blocking(self, num_blocks):
+        blocks_c = list()
+        blocks_chi = list()
+        len_block = len(self.E_therm)//num_blocks
+        for i in range(num_blocks-1):
+            blocks_c.append(self.beta**2 * self.grid_size**2 * self.E_therm[i*len_block:(i+1)*len_block].var())
+            blocks_chi.append(self.beta * self.grid_size**2 * self.M_therm[i*len_block:(i+1)*len_block].var())
+        blocks_c.append(self.beta**2 * self.grid_size**2 * self.E_therm[(num_blocks-1)*len_block:].var())
+        blocks_chi.append(self.beta * self.grid_size**2 * self.M_therm[(num_blocks-1)*len_block:].var())
+        blocks_c = np.array(blocks_c)
+        blocks_chi = np.array(blocks_chi)
+        self.heat_capa_blocking_err = blocks_c.std()/math.sqrt(num_blocks)
+        self.magn_susc_blocking_err = blocks_chi.std()/math.sqrt(num_blocks)
+        return self.heat_capa_blocking_err, self.magn_susc_blocking_err
+
+    def calc_error_c_and_chi_bootstrap(self, num_samples):
+        samples_c = list()
+        samples_chi = list()
+        for i in range(num_samples):
+            sample_E = np.random.choice(a = self.E_therm[::math.ceil(2*self.E_autocorr_time)], size = len(self.E_therm)//math.ceil(2*self.E_autocorr_time))
+            sample_M = np.random.choice(a = self.M_therm[::math.ceil(2*self.M_autocorr_time)], size = len(self.M_therm)//math.ceil(2*self.M_autocorr_time))
+            samples_c.append(self.beta**2 * self.grid_size**2 * sample_E.var())
+            samples_chi.append(self.beta * self.grid_size**2 * sample_M.var())
+        samples_c = np.array(samples_c)
+        samples_chi = np.array(samples_chi)
+        self.heat_capa_bootstrap_err = samples_c.std()
+        self.magn_susc_bootstrap_err = samples_chi.std()
+        return self.heat_capa_bootstrap_err, self.magn_susc_bootstrap_err
+
+
+def error_propagation(chain, effective_observable):
+    obs_chain = effective_observable(chain)
+    err_uncorrected = obs_chain.std()/math.sqrt(len(chain))
+    t_int = ChainAnalyzer.integrated_autocorrelation_time(ChainAnalyzer.calc_positive_autocorrelation(obs_chain))
+    return err_uncorrected * math.sqrt(2 * t_int)
