@@ -38,8 +38,8 @@ for ID in ["3846", "4347", "5000"]:
 # heat_capas = np.array(heat_capas)
 # magn_suscs = np.array(magn_suscs)
 # print(f"BETA {1/2.3} | TEMP {2.3}")
-# print(f"    MULTIPLE_CHAINS:   err_c = {heat_capas.std():0.6f}     err_chi = {magn_suscs.std():0.6f}")
+# print(f"    100_CHAINS:   err_c = {heat_capas.std():0.6f}     err_chi = {magn_suscs.std():0.6f}")
 
 # the above commented code will lead to this output
 print("""BETA 0.4347826086956522 | TEMP 2.3
-    MULTIPLE_CHAINS:   err_c = 0.029870     err_chi = 2.912681""")
+    M100_CHAINS:   err_c = 0.029870     err_chi = 2.912681""")
