@@ -127,11 +127,11 @@ class ChainAnalyzer:
         dchi_dy = -self.beta * self.grid_size ** 2 * 2 * self.M_therm.mean()
         eff_obs_c = lambda e: dc_dx*e**2 + dc_dy * e
         eff_obs_chi = lambda m: dchi_dx*m**2 + dchi_dy * m
-        err_c = error_propagation(self.E_therm, eff_obs_c)
-        err_chi = error_propagation(self.M_therm, eff_obs_chi)
+        err_c, t_int_c = error_propagation(self.E_therm, eff_obs_c)
+        err_chi, t_int_chi = error_propagation(self.M_therm, eff_obs_chi)
         self.heat_capa_propagation_err = err_c
         self.magn_susc_propagation_err = err_chi
-        return self.heat_capa_propagation_err, self.magn_susc_propagation_err
+        return self.heat_capa_propagation_err, self.magn_susc_propagation_err, t_int_c, t_int_chi
 
     def calc_error_c_and_chi_blocking(self, num_blocks):
         blocks_c = list()
@@ -162,9 +162,20 @@ class ChainAnalyzer:
         self.magn_susc_bootstrap_err = samples_chi.std()
         return self.heat_capa_bootstrap_err, self.magn_susc_bootstrap_err
 
+    def calc_error_c_and_chi_corrected_bootstrap(self, num_samples, autocorr_time_e, autocorr_time_m):
+        samples_c = list()
+        samples_chi = list()
+        for i in range(num_samples):
+            sample_E = np.random.choice(a = self.E_therm[::math.ceil(2*autocorr_time_e)], size = len(self.E_therm)//math.ceil(2*autocorr_time_e))
+            sample_M = np.random.choice(a = self.M_therm[::math.ceil(2*autocorr_time_m)], size = len(self.M_therm)//math.ceil(2*autocorr_time_m))
+            samples_c.append(self.beta**2 * self.grid_size**2 * sample_E.var())
+            samples_chi.append(self.beta * self.grid_size**2 * sample_M.var())
+        samples_c = np.array(samples_c)
+        samples_chi = np.array(samples_chi)
+        return samples_c.std(), samples_chi.std()
 
 def error_propagation(chain, effective_observable):
     obs_chain = effective_observable(chain)
     err_uncorrected = obs_chain.std()/math.sqrt(len(chain))
     t_int = ChainAnalyzer.integrated_autocorrelation_time(ChainAnalyzer.calc_positive_autocorrelation(obs_chain))
-    return err_uncorrected * math.sqrt(2 * t_int)
+    return err_uncorrected * math.sqrt(2 * t_int), t_int

@@ -7,6 +7,7 @@ chains = dict()
 chains_list = list()
 betas = list()
 
+LATEX = False
 
 print(" ")
 for ID in ["3846", "4347", "5000"]:
@@ -15,14 +16,24 @@ for ID in ["3846", "4347", "5000"]:
     chains[ID].calc_autocorrelation_function()
     chains[ID].calc_autocorrelation_time()
     chains[ID].calc_corrected_error()
-    chains[ID].calc_error_c_and_chi_propagation()
+    _, _, t_int_c, t_int_chi = chains[ID].calc_error_c_and_chi_propagation()
     chains[ID].calc_error_c_and_chi_blocking(num_blocks = 20)
     chains[ID].calc_error_c_and_chi_bootstrap(num_samples = 1000)
     print(f"BETA {chains[ID].beta} | TEMP {1/chains[ID].beta:0.1f}")
     print(f"    PROPAGATION:   err_c = {chains[ID].heat_capa_propagation_err:0.6f}     err_chi = {chains[ID].magn_susc_propagation_err:0.6f}")
     print(f"    BLOCKING:      err_c = {chains[ID].heat_capa_blocking_err:0.6f}     err_chi = {chains[ID].magn_susc_blocking_err:0.6f}")
     print(f"    BOOTSTRAP:     err_c = {chains[ID].heat_capa_bootstrap_err:0.6f}     err_chi = {chains[ID].magn_susc_bootstrap_err:0.6f}")
+    if ID == "4347":
+        err_c, err_chi = chains[ID].calc_error_c_and_chi_corrected_bootstrap(1000, t_int_c, t_int_chi)
+        print(f"    CORR BOOT:     err_c = {err_c:0.6f}     err_chi = {err_chi:0.6f}")
     print(" ")
+    if LATEX:
+        print(f"Propagation & {chains[ID].heat_capa_propagation_err:0.6f} & {chains[ID].magn_susc_propagation_err:0.6f} \\\\")
+        print(r"\hline")
+        print(f"Blocking & {chains[ID].heat_capa_blocking_err:0.6f} & {chains[ID].magn_susc_blocking_err:0.6f} \\\\")
+        print(r"\hline")
+        print(f"Bootstrap & {chains[ID].heat_capa_bootstrap_err:0.6f} & {chains[ID].magn_susc_bootstrap_err:0.6f} \\\\")
+        print(" ")
     chains_list.append(chains[ID])
     betas.append(int(ID)/10000)
 

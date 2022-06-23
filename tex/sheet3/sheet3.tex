@@ -19,9 +19,9 @@
 
 \begin{document}
 \maketitle
-\textit{Some interesting introduction}
+\textit{You want to build a nuclear reactor. You do a Monte Carlo simulation of the reaction. It looks fine. You are not so easily satisfied. You estimate the error on the results. Still looks fine. You build the reactor. You start it. Boom. You forgot autocorrelation.}
 \section{Introduction}
-    Writing a simulation that returns a result is not necessarily a difficult task. But a simulation alone is not sufficient for answering real world questions. One needs to estimate an upper bound of error on the result. And ideally this upper bound should be as low as possible - it should reflect the true standard error in the statistical sense. Of course every simulation has an underlying model and therefore additional systematic errors per definition, but for now we want to focus on the statistical aspect. Here two challenges will arise. First challenge will be to deal with autocorrelation. Huge autocorrelations in a sample effectively reduce the number of statistically independent configurations and therefore increase the standard error. We will find a method to calculate the autocorrelation and determine how many steps configurations need to be apart for them to be independent. The second challenge will be estimation of error on secondary quantities. To this end we will use three different methods and compare their results to determine which method is suitable for which case. (I am very confused as to why jackknife is not done here. Isn't this like the go-to method in all of lattice QCD?)
+    Writing a simulation that returns a result is not necessarily a difficult task. But a simulation alone is not sufficient for answering real world questions. One needs to estimate an upper bound of error on the result. And ideally this upper bound should be as low as possible - it should reflect the true standard error in the statistical sense. Of course every simulation has an underlying model and therefore additional systematic errors per definition, but for now we want to focus on the statistical aspect. Here two challenges will arise. First challenge will be to deal with autocorrelation. Huge autocorrelations in a sample effectively reduce the number of statistically independent configurations and therefore increase the standard error. We will find a method to calculate the autocorrelation and determine how many steps configurations need to be apart for them to be independent. The second challenge will be estimation of error on secondary quantities. To this end we will use three different methods and compare their results to determine which method is suitable for which case. (I am wondering as to why jackknife is not done here. Isn't this like the go-to method in all of lattice QCD?)
 \section{Autocorrelation and error estimation on primary quantities}
 \subsection{Autocorrelation function}
     \begin{figure}
@@ -87,16 +87,61 @@
     $$
     \chi_{eff} = \beta L ^ 2 (M^2 - 2 \bar{M} M)
     $$
-    One can then proceed to calculate the error using the procedure developed in Section 2. This approach however is bound to fail when the fluctuations of $E$ and $E^2$ become so large that approximation in first order is not justified. This is the case for temperatures close to the critical point.
+    One can then proceed to calculate the error using the procedure developed in Section 2. This approach however is bound to fail when the fluctuations of $E$ and $E^2$ become so large that approximation in first order is not justified. This might be the case for temperatures close to the critical point.
 \subsection{Blocking method}
     This method directly works with the definition of the standard error. One divides the Markov chain into even blocks and evaluates the secondary quantity on each of these blocks. Then one can calculate the variance over all blocks and retrieve an estimation of the error on the complete chain. The autocorrelation does not need to be taken into account explicitly here. There is a caveat to this, however. If the autocorrelation time becomes so large that one blocks does not contain a sufficient amount independent configurations, the error estimate becomes smaller than it truely is. Reducing the number of blocks might not be an option either if the chain itself is not long enough.
 \subsection{Bootstrap method}
-    The idea of this method is to resample the given chain and create several new samples this way. The secondary quantity can then be evaluated on each respective sample and the variance of the resulting values leads to an estimation of the error. Autocorrelation must be taken into account explicitly. To this end one calculates the autocorrelation time $\tau$ of the chain on some primary quantity (energy for heat capacity and magnetisation for magnetic susceptibility) and only takes every $2\tau$-th configuration into account for resampling. By doing this one can guarantee that the configurations in the new samples are statistically independent. This method will not artifically decrease the error estimate close to the critical point.
+    The idea of this method is to resample the given chain and create several new samples this way. The secondary quantity can then be evaluated on each respective sample and the variance of the resulting values leads to an estimation of the error. Autocorrelation must be taken into account explicitly. To this end one calculates the autocorrelation time $\tau$ of the chain on some primary quantity (energy for heat capacity and magnetisation for magnetic susceptibility) and only takes every $2\tau$-th configuration into account for resampling. By doing this, one can guarantee that the configurations in the new samples are statistically independent. This method will not artifically decrease the error estimate close to the critical point. Note however, that there is some ambiguity in the choice of the primary quantity to calculate the autocorrelation time on. To ensure statistic independence one would choose the primary quantity with the highest autocorrelation time. This might lead to overestimation of the error, though. For example, assume as a simple extreme case the following secondary quantity $f(\mu_x,\mu_y) = \mu_x + 0.0000001 * \mu_y$. It is intuitive that if the error on $\mu_y$ is even several magnitudes larger (for example by larger autocorrelation times) than the error on $\mu_x$, it should not affect the error on the secondary quantity $f$ much. Therefore one can conclude, that using the largest autocorrelation time of the primary quantities that the secondary quantity is dependent on results in an upper bound of error but might largely differ from the actual error.
 \subsection{Results}
     The error estimates using all 3 methods are shown in the following table. The values are calculated for chains generated by the Metropolis algorithm on a 64x64 grid:
-    \begin{center}
-    \includegraphics[width=12cm]{table_errors.png}
-    \end{center}
-    WHY BOOTSTRAP SO WRONG AT CRITICAL POINT ?
-    
+    \begin{itemize}
+        \item T = 2.0
+        \item[ ]
+            \begin{tabular}{|c||c|c|}
+            \hline
+            Method & $\sigma_c$ & $\sigma_\chi$ \\
+            \hline
+            \hline
+            Propagation & 0.004413 & 0.005333 \\
+            \hline
+            Blocking & 0.002975 & 0.004451 \\
+            \hline
+            Bootstrap & 0.006701 & 0.005934 \\
+            \hline
+            \end{tabular}
+        \item T = 2.3
+        \item[ ]
+            \begin{tabular}{|c||c|c|}
+            \hline
+            Method & $\sigma_c$ & $\sigma_\chi$ \\
+            \hline
+            \hline
+            Propagation & 0.036158 & 2.398757 \\
+            \hline
+            Blocking & 0.032023 & 2.858065 \\
+            \hline
+            Bootstrap & 0.092392 & 3.940361 \\
+            \hline
+            Multiple chains & 0.029870 & 2.912681 \\
+            \hline
+            Corr. bootstrap & 0.036629 & 2.500663 \\
+            \hline
+            \end{tabular}
+        \item T = 2.6
+        \item[ ]
+            \begin{tabular}{|c||c|c|}
+            \hline
+            Method & $\sigma_c$ & $\sigma_\chi$ \\
+            \hline
+            \hline
+            Propagation & 0.004600 & 0.077597 \\
+            \hline
+            Blocking & 0.005895 & 0.103591 \\
+            \hline
+            Bootstrap & 0.007045 & 0.088420 \\
+            \hline
+            \end{tabular}
+    \end{itemize}
+    One can see that the values generally agree in order of magnitude across all methods. Interestingly at the critical point $T = 2.3$ the Bootstrap method returns a much larger error on the heat capacity than the other two methods. We know that at the critical point the error propagation method and the blocking method might underestimate the error, while the bootstrap method might overestimate the error. In order to investigate this further, 100 thermalized Markov chains with the same parameters (64x64 grid, 90000 sweeps, $T = 2.3$) but different seeds have been generated and the error has been calculated as standard deviation of the heat capacity over these 100 chains. The results are also shown in the table above (denoted as multiple chains). Here it becomes apparent, that the bootstrap method is largely overestimating the error. One possible way to fix this is to use the autocorrelation time on the effective primary quantity (see Sec. 3.1) for the selection of independent configurations. The results are also shown in the above table (denoted as corrected bootstrap). As one can see, this greatly improves the quality of the estimate.
+
 \end{document}
