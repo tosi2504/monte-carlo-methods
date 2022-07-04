@@ -9,6 +9,7 @@
 IsingModel::IsingModel(unsigned int N, unsigned int seed): N(N) {
     rng = std::mt19937(seed);
     uni_dist = std::uniform_real_distribution<>(0.0, 1.0);
+    random_site_dist = std::uniform_int_distribution<>(0, N*N - 1);
     fill_maps();
     fill_nn_lookup();
     init_grid(0.5);
@@ -92,7 +93,7 @@ std::array<double,5> IsingModel::create_lookup(double beta) {
     return result;
 }
 
-int IsingModel::metropolis_one_step(const std::array<double,5> & lookup, coord_flat site) {
+int IsingModel::metropolis_one_step_lookup(const std::array<double,5> & lookup, coord_flat site) {
     int delta_energy = 0;
     for (coord_flat nn: nn_lookup[site]) {
         delta_energy += config[site]*config[nn];
@@ -108,6 +109,34 @@ int IsingModel::metropolis_one_step(const std::array<double,5> & lookup, coord_f
     return 0;
 }
 
+int IsingModel::wolff(double beta) {
+    // init the queue
+    std::queue<coord_flat, std::deque<coord_flat>> cluster;
+
+    // choose random site
+    coord_flat initial_site = random_site_dist(rng);
+    short int initial_spin = config[initial_site];
+
+    // push in the first site
+    cluster.push(initial_site);
+    flip(initial_site);
+    int cluster_size = 1;
+
+    // start the while loop
+    while (!cluster.empty()) {
+        for (coord_flat nn: nn_lookup[cluster.front()]) {
+            if (config[nn] == initial_spin) {
+                if (uni_dist(rng) < (1 - std::exp(-2*beta))) {
+                    flip(nn);
+                    cluster.push(nn);
+                    cluster_size += 1;
+                }
+            }
+        }
+        cluster.pop();
+    }
+    return cluster_size;
+}
 
 
 bool IsingModel::at(unsigned int x, unsigned int y) {
@@ -117,6 +146,16 @@ bool IsingModel::at(unsigned int x, unsigned int y) {
 void IsingModel::set(unsigned int x, unsigned int y, bool val) {
     config[y*N + x] = (val) ? 1 : -1;
     E = calc_energy();
+}
+
+void IsingModel::flip(coord_flat site) {
+    int delta_energy = 0;
+    for (coord_flat nn: nn_lookup[site]) {
+        delta_energy += config[site]*config[nn];
+    }
+    config[site] *= -1;
+    E += 2*delta_energy;
+    M += 2 * config[site];
 }
 
 int IsingModel::calc_energy() {

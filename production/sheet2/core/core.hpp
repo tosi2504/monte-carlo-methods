@@ -1,6 +1,8 @@
 #pragma once
 
 #include <vector>
+#include <queue>
+#include <deque>
 #include <map>
 #include <array>
 #include <random>
@@ -34,6 +36,7 @@ struct IsingModel {
     // rng stuff
     std::mt19937 rng;
     std::uniform_real_distribution<> uni_dist;
+    std::uniform_int_distribution<> random_site_dist;
 
     // setup
     IsingModel() = delete;
@@ -46,11 +49,13 @@ struct IsingModel {
     int metropolis_one_step(double beta, coord_flat site);
     int metropolis_sweep(double beta);
     static std::array<double,5> create_lookup(double beta);
-    int metropolis_one_step(const std::array<double,5> & lookup, coord_flat site);
+    int metropolis_one_step_lookup(const std::array<double,5> & lookup, coord_flat site);
+    int wolff(double beta);
 
     // access
     bool at(unsigned int x, unsigned int y);
     void set(unsigned int x, unsigned int y, bool val);
+    void flip(coord_flat site);
     int calc_energy();
 
 };

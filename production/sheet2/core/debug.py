@@ -7,9 +7,15 @@ N = 64
 ising = IM(N, 2)
 
 
-start = time.perf_counter()
+energies = list()
+mags = list()
 accepted = 0
 for i in range(10000):
-    accepted += ising.metropolis_sweep(0.5)
-print(time.perf_counter() - start)
-print("Acceptance:", accepted/10000/64/64)
+    print(ising.wolff(1/2.3), i)
+    energies.append(ising.E /64/64)
+    mags.append(abs(ising.M)/64/64)
+
+
+plt.plot(energies)
+plt.plot(mags)
+plt.show()

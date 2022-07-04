@@ -1,5 +1,5 @@
 STD = -Wall -Wextra -Wpedantic -std=c++17
-INC_PYB = -I/usr/include/python3.8 -I/home/athena/.local/lib/python3.8/site-packages/pybind11/include
+INC_PYB = -I/usr/include/python3.8 -I/home/$(USER)/.local/lib/python3.8/site-packages/pybind11/include
 
 
 pyIsing: core.o pyIsing.cpp
