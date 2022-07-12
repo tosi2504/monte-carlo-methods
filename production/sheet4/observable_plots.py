@@ -74,18 +74,23 @@ def create_plot(betas, chains, temp_limits = None):
     ax_C.set_ylim(0, 1.1*max(Cs))
     ax_Chi.set_ylim(0, 1.1*max(Chis))
 
+    ax_E.grid()
+    ax_M.grid()
+    ax_C.grid()
+    ax_Chi.grid()
+
     #plot :)
-    ax_E.plot(temps, Es, color = "red")
-    ax_E.fill_between(temps, Es - E_errs, Es + E_errs, color = "red", alpha = 0.4)
+    ax_E.errorbar(temps, Es, E_errs, color = "black", fmt = "none", capsize = 2, linewidth = 1)
+    ax_E.scatter(temps, Es, color = "red", marker = "o", s = 7)
 
-    ax_M.plot(temps, Ms, color = "blue")
-    ax_M.fill_between(temps, Ms - M_errs, Ms + M_errs, color = "blue", alpha = 0.3)
+    ax_M.errorbar(temps, Ms, M_errs, color = "black", fmt = "none", capsize = 2, linewidth = 1)
+    ax_M.scatter(temps, Ms, color = "blue", marker = "o", s = 7)
 
-    ax_C.plot(temps, Cs, color = "coral")
-    ax_C.fill_between(temps, Cs - C_errs, Cs + C_errs, color = "coral", alpha = 0.4)
+    ax_C.errorbar(temps, Cs, C_errs, color = "black", fmt = "none", capsize = 2, linewidth = 1)
+    ax_C.scatter(temps, Cs, color = "coral", marker = "o", s = 7)
 
-    ax_Chi.plot(temps, Chis, color = "royalblue")
-    ax_Chi.fill_between(temps, Chis - Chi_errs, Chis + Chi_errs, color = "royalblue", alpha = 0.3)
+    ax_Chi.errorbar(temps, Chis, Chi_errs, color = "black", fmt = "none", capsize = 2, linewidth = 1)
+    ax_Chi.scatter(temps, Chis, color = "royalblue", marker = "o", s = 7)
 
     fig.tight_layout()
     plt.show()
