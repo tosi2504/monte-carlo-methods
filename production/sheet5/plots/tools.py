@@ -18,14 +18,14 @@ class ChainGenerator:
         for i in range(N_steps):
             self.IsingModel.metropolis_sweep(self.beta)
             self.E.append(self.IsingModel.E/(self.grid_size**2))
-            self.M.append(self.IsingModel.M/(self.grid_size**2))
+            self.M.append(math.sqrt(self.IsingModel.M_vec_x**2 + self.IsingModel.M_vec_y**2)/(self.grid_size**2))
             print(i)
 
     def run_hmc(self, N_steps, numLeaps, leapsize):
         for i in range(N_steps):
             self.IsingModel.hmc_one_step(self.beta, numLeaps, leapsize)
             self.E.append(self.IsingModel.E/(self.grid_size**2))
-            self.M.append(self.IsingModel.M/(self.grid_size**2))
+            self.M.append(math.sqrt(self.IsingModel.M_vec_x**2 + self.IsingModel.M_vec_y**2)/(self.grid_size**2))
             print(i)
         self.numLeaps = numLeaps
         self.leapsize = leapsize
@@ -51,6 +51,9 @@ class ChainGenerator:
             for e, m in zip(self.E, self.M):
                 file.write(f"{e} {m}\n")
 
+    def clear_buffer(self):
+        self.E = list()
+        self.M = list()
 
 class ChainAnalyzer:
     def __init__(self, filename):
