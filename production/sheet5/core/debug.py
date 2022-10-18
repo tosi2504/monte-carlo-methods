@@ -7,11 +7,11 @@ import math
 N = 16
 eps = 0.01
 numLeaps = 20
-T = 2
+T = 1.2
 beta = 1/T
 print(beta)
 ising = IM(N, 100)
-number_of_sweeps = 100000
+number_of_sweeps = 10000
 
 
 energies = list()
@@ -21,6 +21,8 @@ for i in range(number_of_sweeps):
     print(i)
     if ising.hmc_one_step(beta, numLeaps, eps): # seems to work yay! actually does.
         accepted += 1
+  #  for site in range(N*N):
+  #      ising.metropolis_sweep(beta, 0.1)
     energies.append(ising.E/N/N)
     mags.append(math.sqrt(ising.M_vec_x**2 + ising.M_vec_y**2)/N/N)
 
