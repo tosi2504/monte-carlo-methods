@@ -48,16 +48,16 @@ struct IsingModel {
     void init_grid_cold();
     void fill_maps();
     void fill_nn_lookup();
-	
+
 	// observables
 	void update_mag();
 	void update_energy();
 	double calc_energy(const std::vector<double> & config);
-	
+
     // state update algorithms
     int metropolis_one_step(double beta, coord_flat site, double delta);
     int metropolis_sweep(double beta, double delta);
 
-	double leapfrog(std::vector<double> & pos, std::vector<double> & mom, int numLeaps, double eps);
+	double leapfrog(std::vector<double> & pos, std::vector<double> & mom, int numLeaps, double eps, double beta);
 	bool hmc_one_step(double beta, int numLeaps, double eps);
 };

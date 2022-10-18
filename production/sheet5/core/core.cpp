@@ -105,16 +105,16 @@ int IsingModel::metropolis_sweep(double beta, double delta) {
     return accepted;
 }
 
-double IsingModel::leapfrog(std::vector<double> & pos, std::vector<double> & mom, int numLeaps, double eps) {
+double IsingModel::leapfrog(std::vector<double> & pos, std::vector<double> & mom, int numLeaps, double eps, double beta) {
 	// inital half step
 	for (coord_flat site = 0; site < N*N; site++) {
 		double dV_dq = 0;
 		for (coord_flat nn: nn_lookup[site]) {
-			dV_dq += std::sin(pos[site] - pos[nn]);
+			dV_dq += beta*std::sin(pos[site] - pos[nn]);
 		}
 		mom[site] -= dV_dq * eps / 2;
 	}
-	
+
 	// full steps
 	for (int t = 1; t < numLeaps; t++) {
 		for (coord_flat site = 0; site < N*N; site++){
@@ -123,7 +123,7 @@ double IsingModel::leapfrog(std::vector<double> & pos, std::vector<double> & mom
 		for (coord_flat site = 0; site < N*N; site++){
 			double dV_dq = 0;
 			for (coord_flat nn: nn_lookup[site]) {
-				dV_dq += std::sin(pos[site] - pos[nn]);
+				dV_dq += beta*std::sin(pos[site] - pos[nn]);
 			}
 			mom[site] -= dV_dq * eps;
 		}
@@ -137,7 +137,7 @@ double IsingModel::leapfrog(std::vector<double> & pos, std::vector<double> & mom
 	for (coord_flat site = 0; site < N*N; site++){
 		double dV_dq = 0;
 		for (coord_flat nn: nn_lookup[site]) {
-			dV_dq += std::sin(pos[site] - pos[nn]);
+			dV_dq += beta*std::sin(pos[site] - pos[nn]);
 		}
 		mom[site] -= dV_dq * eps / 2;
 		final_kinetic += mom[site]*mom[site];
@@ -146,7 +146,7 @@ double IsingModel::leapfrog(std::vector<double> & pos, std::vector<double> & mom
 }
 
 bool IsingModel::hmc_one_step(double beta, int numLeaps, double eps) {
-	// initialization of random momenta and copy spins
+	// initialize random momenta and copy spins
 	double init_kinetic = 0;
 	for (coord_flat site = 0; site < N*N; site++) {
 		// momenta
@@ -156,8 +156,9 @@ bool IsingModel::hmc_one_step(double beta, int numLeaps, double eps) {
 		pos[site] = config[site];
 	}
 	init_kinetic = init_kinetic/2;
+
 	// leapfrog
-	double final_kinetic = leapfrog(pos, mom, numLeaps, eps);
+	double final_kinetic = leapfrog(pos, mom, numLeaps, eps, beta);
 
 	// accept-reject
 	double final_E = calc_energy(pos);
@@ -171,5 +172,3 @@ bool IsingModel::hmc_one_step(double beta, int numLeaps, double eps) {
 		return false;
 	}
 }
-
-

@@ -11,7 +11,7 @@ generator.plot()
 generator.clear_buffer()
 
 for numLeaps in range(1,7):
-    for leapsize in 10**np.linspace(-2.25, -0.25, 7, dtype=np.double):
+    for leapsize in 10**np.linspace(-0.4, -0.3, 2, dtype=np.double):
         generator.run_hmc(200000, numLeaps, leapsize)
         print(numLeaps, leapsize)
         generator.thermalize(0)
