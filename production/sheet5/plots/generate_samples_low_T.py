@@ -10,11 +10,10 @@ generator.run_hmc(100000, 3, 0.01)
 generator.plot()
 generator.clear_buffer()
 
-for numLeaps in range(1,6):
-    for leapsize in 10**np.linspace(-2, -0.5, 5, dtype=np.double):
-        generator.run_hmc(100000, numLeaps, leapsize)
+for numLeaps in range(1,7):
+    for leapsize in 10**np.linspace(-2.25, -0.25, 7, dtype=np.double):
+        generator.run_hmc(200000, numLeaps, leapsize)
         print(numLeaps, leapsize)
-        generator.plot()
         generator.thermalize(0)
         generator.export(f"chains_beta1_5/{numLeaps}_{leapsize}")
         generator.clear_buffer()
