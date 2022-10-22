@@ -21,12 +21,18 @@ class ChainGenerator:
             self.M.append(math.sqrt(self.IsingModel.M_vec_x**2 + self.IsingModel.M_vec_y**2)/(self.grid_size**2))
             print(i)
 
-    def run_hmc(self, N_steps, numLeaps, leapsize):
-        for i in range(N_steps):
-            self.IsingModel.hmc_one_step(self.beta, numLeaps, leapsize)
-            self.E.append(self.IsingModel.E/(self.grid_size**2))
-            self.M.append(math.sqrt(self.IsingModel.M_vec_x**2 + self.IsingModel.M_vec_y**2)/(self.grid_size**2))
-            print(i)
+    def run_hmc(self, N_steps, numLeaps, leapsize, count = True):
+        if count:
+            for i in range(N_steps):
+                self.IsingModel.hmc_one_step(self.beta, numLeaps, leapsize)
+                self.E.append(self.IsingModel.E/(self.grid_size**2))
+                self.M.append(math.sqrt(self.IsingModel.M_vec_x**2 + self.IsingModel.M_vec_y**2)/(self.grid_size**2))
+                print(i)
+        else:
+            for i in range(N_steps):
+                self.IsingModel.hmc_one_step(self.beta, numLeaps, leapsize)
+                self.E.append(self.IsingModel.E/(self.grid_size**2))
+                self.M.append(math.sqrt(self.IsingModel.M_vec_x**2 + self.IsingModel.M_vec_y**2)/(self.grid_size**2))
         self.numLeaps = numLeaps
         self.leapsize = leapsize
 
